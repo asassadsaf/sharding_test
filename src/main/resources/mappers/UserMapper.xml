@@ -104,6 +104,12 @@
     values (#{id,jdbcType=BIGINT}, #{city,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{carId,jdbcType=BIGINT})
   </insert>
+  <insert id="insertNoId" parameterType="com.fkp.domain.User">
+    insert into user (city, name,
+                      car_id)
+    values (#{city,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+            #{carId,jdbcType=BIGINT})
+  </insert>
   <insert id="insertSelective" parameterType="com.fkp.domain.User">
     insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -193,4 +199,16 @@
       car_id = #{carId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="findPage" resultMap="BaseResultMap">
+    select
+        <include refid="Base_Column_List"/>
+    from user
+  </select>
+  <select id="findUserCar" resultType="com.fkp.domain.UserVO">
+    select
+        u.id as id,u.name as name,u.city as city,c.name as carName,c.price as carPrice
+    from user u
+    left join car c on u.car_id = c.id
+    where u.id = 829830178883502081
+  </select>
 </mapper>

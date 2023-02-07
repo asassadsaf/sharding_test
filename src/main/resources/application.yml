@@ -5,9 +5,9 @@ spring:
       ds0:  #配置每个数据库的数据源信息
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/seckmsfb?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+        url: jdbc:mysql://localhost:3306/sharding_test_db?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
         username: root
-        password: SWXA1234@DAR_Mysql
+        password: fkp123456
         initialSize: 5
         minIdle: 5
         maxActive: 20
@@ -34,9 +34,10 @@ spring:
             type: SNOWFLAKE   #id使用雪花算法，因为雪花算法生成的id具有全球唯一性，并且又有自增特性，适合mysql的innodb引擎
     props:
       sql:
-        show: true    # 打开sql输出日志
+        show: false    # 打开sql输出日志
 
 
 mybatis-plus:
+  dbtype: mysql
   mapper-locations:
     - classpath:mappers/*.xml
