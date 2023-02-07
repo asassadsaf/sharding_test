@@ -74,7 +74,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_0
+    from user
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -85,27 +85,27 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_0
+    from user
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from user_0
+    delete from user
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="com.fkp.domain.UserExample">
-    delete from user_0
+    delete from user
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.fkp.domain.User">
-    insert into user_0 (id, city, name, 
+    insert into user (id, city, name,
       car_id)
     values (#{id,jdbcType=BIGINT}, #{city,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{carId,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="com.fkp.domain.User">
-    insert into user_0
+    insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -136,13 +136,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.fkp.domain.UserExample" resultType="java.lang.Long">
-    select count(*) from user_0
+    select count(*) from user
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_0
+    update user
     <set>
       <if test="row.id != null">
         id = #{row.id,jdbcType=BIGINT},
@@ -162,7 +162,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_0
+    update user
     set id = #{row.id,jdbcType=BIGINT},
       city = #{row.city,jdbcType=VARCHAR},
       name = #{row.name,jdbcType=VARCHAR},
@@ -172,7 +172,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.fkp.domain.User">
-    update user_0
+    update user
     <set>
       <if test="city != null">
         city = #{city,jdbcType=VARCHAR},
@@ -187,7 +187,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.fkp.domain.User">
-    update user_0
+    update user
     set city = #{city,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       car_id = #{carId,jdbcType=BIGINT}
