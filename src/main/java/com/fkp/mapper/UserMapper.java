@@ -29,6 +29,8 @@ public interface UserMapper {
 
     int insertNoId(User row);
 
+    int insertBatch(List<User> userList);
+
     int insertSelective(User row);
 
     List<User> selectByExample(UserExample example);

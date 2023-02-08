@@ -103,6 +103,12 @@
     values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{price,jdbcType=INTEGER}
       )
   </insert>
+  <insert id="insertBatch" parameterType="com.fkp.domain.Car">
+    insert into car(id,name, price) values
+    <foreach collection="carList" item="car" separator=",">
+      (#{car.id},#{car.name},#{car.price})
+    </foreach>
+  </insert>
   <insert id="insertSelective" parameterType="com.fkp.domain.Car">
     insert into car
     <trim prefix="(" suffix=")" suffixOverrides=",">

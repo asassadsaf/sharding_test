@@ -2,10 +2,7 @@ package com.fkp;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fkp.domain.Car;
-import com.fkp.domain.User;
-import com.fkp.domain.UserExample;
-import com.fkp.domain.UserVO;
+import com.fkp.domain.*;
 import com.fkp.mapper.CarMapper;
 import com.fkp.mapper.UserMapper;
 import org.apache.ibatis.session.ExecutorType;
@@ -15,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,6 +83,9 @@ public class ShardingTestApplicationTests {
         System.out.println(userCar);
     }
 
+    /**
+     * 批量插入，在一个事务中，数据过大会导致OOM，速度较动态拼接sql慢
+     */
     @Test
     void saveBatch() {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
@@ -103,4 +104,77 @@ public class ShardingTestApplicationTests {
         System.out.println((end - start)/1000);
     }
 
+    /**
+     * 动态拼接sql方式批量插入，10W->209s
+     */
+    @Test
+    void saveBatch2(){
+        List<User> userList = new ArrayList<>();
+        long begin = System.currentTimeMillis();
+        for (int i=100000;i<200000;i++){
+            userList.add(new User(null,"jinan_" + i,"zhangsan_" + i,1L));
+        }
+        long start = System.currentTimeMillis();
+        userMapper.insertBatch(userList);
+        long end = System.currentTimeMillis();
+        System.out.println((start - begin)/1000);
+        System.out.println((end - start)/1000);
+    }
+
+    /**
+     * 动态拼接sql方式批量插入，10W->4s
+     */
+    @Test
+    void saveCarBatch(){
+        List<Car> carList = new ArrayList<>();
+        long begin = System.currentTimeMillis();
+        for(int i=100000;i<200000;i++){
+            carList.add(new Car((long) i,"car_" + i,10));
+        }
+        long start = System.currentTimeMillis();
+        carMapper.insertBatch(carList);
+        long end = System.currentTimeMillis();
+        System.out.println("build time:" + (start - begin)/1000);
+        System.out.println("execute time" + (end - start)/1000);
+    }
+
+    /**
+     * 测试通过主键查询对比
+     */
+    @Test
+    void selectTest(){
+        long start = System.currentTimeMillis();
+        User user = userMapper.selectByPrimaryKey(830026060258082816L);
+        long end = System.currentTimeMillis();
+        System.out.println("time:" + (end - start));    //498ms
+        System.out.println(user);
+
+        long start2 = System.currentTimeMillis();
+        Car cars = carMapper.selectByPrimaryKey(99999L);
+        long end2 = System.currentTimeMillis();
+        System.out.println("time:" + (end2 - start2));  //6ms
+        System.out.println(cars);
+    }
+
+    /**
+     * 通过非主键查询对比
+     */
+    @Test
+    void selectTest2(){
+        UserExample example = new UserExample();
+        example.createCriteria().andCarIdEqualTo(99954L);
+        long start = System.currentTimeMillis();
+        List<User> user = userMapper.selectByExample(example);
+        long end = System.currentTimeMillis();
+        System.out.println("time:" + (end - start));    //545ms
+        System.out.println(user);
+
+        CarExample example1 = new CarExample();
+        example1.createCriteria().andNameEqualTo("car_118");
+        long start2 = System.currentTimeMillis();
+        List<Car> cars = carMapper.selectByExample(example1);
+        long end2 = System.currentTimeMillis();
+        System.out.println("time:" + (end2 - start2));  //51ms
+        System.out.println(cars);
+    }
 }

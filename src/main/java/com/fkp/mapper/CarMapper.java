@@ -20,6 +20,8 @@ public interface CarMapper {
 
     int insert(Car row);
 
+    int insertBatch(List<Car> carList);
+
     int insertSelective(Car row);
 
     List<Car> selectByExample(CarExample example);
