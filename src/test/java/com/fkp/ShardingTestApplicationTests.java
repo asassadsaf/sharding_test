@@ -66,10 +66,10 @@ public class ShardingTestApplicationTests {
         Page<User> page = new Page<>();
         page.setCurrent(1);
         page.setSize(2);
-        OrderItem orderItem = new OrderItem();
-        orderItem.setColumn("id");
-        orderItem.setAsc(false);
-        page.setOrders(Collections.singletonList(orderItem));
+//        OrderItem orderItem = new OrderItem();
+//        orderItem.setColumn("id");
+//        orderItem.setAsc(false);
+//        page.setOrders(Collections.singletonList(orderItem));
         long start = System.currentTimeMillis();
         Page<List<User>> res = userMapper.findPage(page);
         long end = System.currentTimeMillis();
@@ -105,20 +105,35 @@ public class ShardingTestApplicationTests {
     }
 
     /**
-     * 动态拼接sql方式批量插入，10W->209s
+     * 动态拼接sql方式批量插入，10W->209s    20W * 50批次  1000W -> 69705s
      */
     @Test
     void saveBatch2(){
-        List<User> userList = new ArrayList<>();
-        long begin = System.currentTimeMillis();
-        for (int i=100000;i<200000;i++){
-            userList.add(new User(null,"jinan_" + i,"zhangsan_" + i,1L));
+
+        long time = 0;
+        long time2 = 0;
+        int index = 10000000;
+        for (int j = 0;j<50;j++){
+            System.out.println("open:" + j);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+            UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+            List<User> userList = new ArrayList<>();
+            long begin = System.currentTimeMillis();
+            for (int i=0;i<200000;i++){
+                userList.add(new User(null,"jinan_" + index,"zhangsan_" + index, (long) index));
+                index++;
+            }
+            long start = System.currentTimeMillis();
+            mapper.insertBatch(userList);
+            sqlSession.commit();
+            sqlSession.clearCache();
+            sqlSession.close();
+            long end = System.currentTimeMillis();
+            time += (end - start);
+            time2 += (start - begin);
         }
-        long start = System.currentTimeMillis();
-        userMapper.insertBatch(userList);
-        long end = System.currentTimeMillis();
-        System.out.println((start - begin)/1000);
-        System.out.println((end - start)/1000);
+        System.out.println(time2);
+        System.out.println(time/1000);
     }
 
     /**
@@ -126,16 +141,30 @@ public class ShardingTestApplicationTests {
      */
     @Test
     void saveCarBatch(){
-        List<Car> carList = new ArrayList<>();
-        long begin = System.currentTimeMillis();
-        for(int i=100000;i<200000;i++){
-            carList.add(new Car((long) i,"car_" + i,10));
+        long time = 0;
+        long time2 = 0;
+        int index = 10000000;
+        for (int j = 0;j<100;j++){
+            System.out.println("open:" + j);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+            CarMapper mapper = sqlSession.getMapper(CarMapper.class);
+            List<Car> carList = new ArrayList<>();
+            long begin = System.currentTimeMillis();
+            for (int i=0;i<200000;i++){
+                carList.add(new Car((long) index,"dazhong_" + index, index));
+                index++;
+            }
+            long start = System.currentTimeMillis();
+            mapper.insertBatch(carList);
+            sqlSession.commit();
+            sqlSession.clearCache();
+            sqlSession.close();
+            long end = System.currentTimeMillis();
+            time += (end - start);
+            time2 += (start - begin);
         }
-        long start = System.currentTimeMillis();
-        carMapper.insertBatch(carList);
-        long end = System.currentTimeMillis();
-        System.out.println("build time:" + (start - begin)/1000);
-        System.out.println("execute time" + (end - start)/1000);
+        System.out.println(time2);
+        System.out.println(time/1000);
     }
 
     /**
@@ -144,13 +173,13 @@ public class ShardingTestApplicationTests {
     @Test
     void selectTest(){
         long start = System.currentTimeMillis();
-        User user = userMapper.selectByPrimaryKey(830026060258082816L);
+        User user = userMapper.selectByPrimaryKey(831182741469921282L);
         long end = System.currentTimeMillis();
         System.out.println("time:" + (end - start));    //498ms
         System.out.println(user);
 
         long start2 = System.currentTimeMillis();
-        Car cars = carMapper.selectByPrimaryKey(99999L);
+        Car cars = carMapper.selectByPrimaryKey(10000012L);
         long end2 = System.currentTimeMillis();
         System.out.println("time:" + (end2 - start2));  //6ms
         System.out.println(cars);
@@ -162,7 +191,7 @@ public class ShardingTestApplicationTests {
     @Test
     void selectTest2(){
         UserExample example = new UserExample();
-        example.createCriteria().andCarIdEqualTo(99954L);
+        example.createCriteria().andCarIdEqualTo(19999992L);
         long start = System.currentTimeMillis();
         List<User> user = userMapper.selectByExample(example);
         long end = System.currentTimeMillis();
@@ -170,11 +199,40 @@ public class ShardingTestApplicationTests {
         System.out.println(user);
 
         CarExample example1 = new CarExample();
-        example1.createCriteria().andNameEqualTo("car_118");
+        example1.createCriteria().andNameEqualTo("dazhong_10000012");
         long start2 = System.currentTimeMillis();
         List<Car> cars = carMapper.selectByExample(example1);
         long end2 = System.currentTimeMillis();
         System.out.println("time:" + (end2 - start2));  //51ms
         System.out.println(cars);
     }
+
+    /**
+     * 比较分表和不分表查询全部数据耗时
+     */
+    @Test
+    void selectTest3(){
+        long a = System.currentTimeMillis();
+        List<User> users = userMapper.selectByExample(null);
+        long b = System.currentTimeMillis();
+        List<Car> cars = carMapper.selectByExample(null);
+        long c = System.currentTimeMillis();
+        System.out.println("users time:" + (b - a));
+        System.out.println("cars time:" + (c - b));
+    }
+
+//    @Test
+//    void selectPageTest(){
+//        PageHelper.startPage(1,10);
+//        List<User> users = userMapper.selectByExample(null);
+//        PageInfo<User> pageInfo = new PageInfo<>(users);
+//        int pageNum = pageInfo.getPageNum();
+//        int pageSize = pageInfo.getPageSize();
+//        long total = pageInfo.getTotal();
+//        List<User> list = pageInfo.getList();
+//        System.out.println(pageNum);
+//        System.out.println(pageSize);
+//        System.out.println(total);
+//        System.out.println(list);
+//    }
 }
