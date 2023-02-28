@@ -1,7 +1,9 @@
 package com.fkp.mapper;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fkp.domain.Car;
 import com.fkp.domain.CarExample;
+import com.fkp.domain.Person;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,6 +14,11 @@ import java.util.List;
  * @description:
  */
 public interface CarMapper {
+
+    Page<Car> findPage(Page<Car> page);
+
+    Page<Person> findPersonPage(Page<Person> page);
+
     long countByExample(CarExample example);
 
     int deleteByExample(CarExample example);

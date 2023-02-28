@@ -67,6 +67,12 @@
   <sql id="Base_Column_List">
     id, name, price
   </sql>
+  <select id="findPage" resultMap="BaseResultMap">
+    select * from car
+  </select>
+  <select id="findPersonPage" resultType="com.fkp.domain.Person">
+    select * from person
+  </select>
   <select id="selectByExample" parameterType="com.fkp.domain.CarExample" resultMap="BaseResultMap">
     select
     <if test="distinct">

@@ -60,20 +60,50 @@ public class ShardingTestApplicationTests {
         System.out.println(users);
     }
 
+    /**
+     * 2kw数据分表分页查询559ms
+     */
     @Test
     void page(){
         //分页查询，三个表各查一次总数，三个表分别分页查询，汇总结果处理后返回
         Page<User> page = new Page<>();
         page.setCurrent(1);
-        page.setSize(2);
-//        OrderItem orderItem = new OrderItem();
-//        orderItem.setColumn("id");
-//        orderItem.setAsc(false);
+        page.setSize(10);
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("id");
+        orderItem.setAsc(false);
 //        page.setOrders(Collections.singletonList(orderItem));
         long start = System.currentTimeMillis();
+        //大数据量下若查询total会耗费大量时间，通过指定setSearchCount为false关闭对总数的查询
+//        page.setSearchCount(false);
         Page<List<User>> res = userMapper.findPage(page);
         long end = System.currentTimeMillis();
         System.out.println("time" + (end - start) + "\npageNum:"+ res.getCurrent() + "\npageSize:" + res.getSize() + "\ntotal:" + res.getTotal() + "\nrecords:" + res.getRecords());
+    }
+
+    /**
+     * 2kw数据单表分页查询538ms
+     */
+    @Test
+    void carPage(){
+        Page<Car> page = new Page<>();
+        page.setCurrent(1);
+        page.setSize(10);
+        page.setSearchCount(false);
+        long start = System.currentTimeMillis();
+        Page<Car> cars = carMapper.findPage(page);
+        long end = System.currentTimeMillis();
+        System.out.println("time:" + (end - start));
+        System.out.println(cars.getRecords());
+    }
+
+    @Test
+    void personPage(){
+        Page<Person> page = new Page<>();
+        page.setCurrent(1);
+        page.setSize(1);
+        Page<Person> cars = carMapper.findPersonPage(page);
+        System.out.println(cars.getRecords());
     }
 
     @Test
@@ -195,7 +225,7 @@ public class ShardingTestApplicationTests {
         long start = System.currentTimeMillis();
         List<User> user = userMapper.selectByExample(example);
         long end = System.currentTimeMillis();
-        System.out.println("time:" + (end - start));    //545ms
+        System.out.println("time:" + (end - start));    //8270ms
         System.out.println(user);
 
         CarExample example1 = new CarExample();
@@ -203,12 +233,12 @@ public class ShardingTestApplicationTests {
         long start2 = System.currentTimeMillis();
         List<Car> cars = carMapper.selectByExample(example1);
         long end2 = System.currentTimeMillis();
-        System.out.println("time:" + (end2 - start2));  //51ms
+        System.out.println("time:" + (end2 - start2));  //5530ms
         System.out.println(cars);
     }
 
     /**
-     * 比较分表和不分表查询全部数据耗时
+     * 比较分表和不分表查询全部数据耗时,数据量大发生OOM
      */
     @Test
     void selectTest3(){
@@ -221,18 +251,4 @@ public class ShardingTestApplicationTests {
         System.out.println("cars time:" + (c - b));
     }
 
-//    @Test
-//    void selectPageTest(){
-//        PageHelper.startPage(1,10);
-//        List<User> users = userMapper.selectByExample(null);
-//        PageInfo<User> pageInfo = new PageInfo<>(users);
-//        int pageNum = pageInfo.getPageNum();
-//        int pageSize = pageInfo.getPageSize();
-//        long total = pageInfo.getTotal();
-//        List<User> list = pageInfo.getList();
-//        System.out.println(pageNum);
-//        System.out.println(pageSize);
-//        System.out.println(total);
-//        System.out.println(list);
-//    }
 }

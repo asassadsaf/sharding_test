@@ -8,19 +8,22 @@ spring:
         url: jdbc:mysql://localhost:3306/sharding_test_db?autoReconnect=true&failOverReadOnly=false&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
         username: root
         password: fkp123456
-#        initialSize: 5
-#        minIdle: 5
-#        maxActive: 20
-#        maxWait: 60000
-#        timeBetweenEvictionRunsMillis: 60000
-#        min-evictableIdleTimeMillis: 300000
-#        validationQuery: SELECT 1 FROM DUAL
-#        testWhileIdle: true
-#        testOnBorrow: false
-#        testOnReturn: false
-#        poolPreparedStatements: true
-#        maxPoolPreparedStatementPerConnectionSize: 20
-#        filters: stat,wall
+#        connectionProperties: connectTimeout=60000;socketTimeout=60000  #1.2.12版本配置失效
+        connectTimeout: 60000  #1.2.12版本需要单独配置才生效
+        socketTimeout: 60000   #1.2.12版本需要单独配置才生效
+        initialSize: 5
+        minIdle: 5
+        maxActive: 20
+        maxWait: 60000
+        timeBetweenEvictionRunsMillis: 60000
+        min-evictableIdleTimeMillis: 300000
+        validationQuery: SELECT 1 FROM DUAL
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        filters: stat,wall
     sharding:
       tables:
         user:   #分表策略配置
@@ -35,9 +38,10 @@ spring:
     props:
       sql:
         show: true    # 打开sql输出日志
-
-
 mybatis-plus:
   dbtype: mysql
   mapper-locations:
     - classpath:mappers/*.xml
+logging:
+  level:
+    root: info
