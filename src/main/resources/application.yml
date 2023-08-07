@@ -27,7 +27,11 @@ spring:
     sharding:
       tables:
         user:   #分表策略配置
-          actual-data-nodes: ds0.user_$->{0..2}   #表名枚举，其中的user是需要分表的表名；ds0.user_$->{0..2} 其中ds0表示数据源名称；user_$->{0..2} 表示从user_0到user_2
+          actual-data-nodes: ds$->{0..0}.user_$->{0..2}   #表名枚举，其中的user是需要分表的表名；ds0.user_$->{0..2} 其中ds0表示数据源名称；user_$->{0..2} 表示从user_0到user_2
+          database-strategy:
+            inline:
+              sharding-column: id
+              algorithm-expression: ds$->{0/id}
           table-strategy:
             inline:
               sharding-column: id   #使用哪一列用作计算分表策略，我们就使用id
