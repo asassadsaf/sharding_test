@@ -7,7 +7,7 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://localhost:3306/sharding_test_db?autoReconnect=true&failOverReadOnly=false&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
         username: root
-        password: fkp123456
+        password: SWXA1234@DAR_Mysql
 #        connectionProperties: connectTimeout=60000;socketTimeout=60000  #1.2.12版本配置失效
         connectTimeout: 60000  #1.2.12版本需要单独配置才生效
         socketTimeout: 60000   #1.2.12版本需要单独配置才生效
@@ -24,6 +24,28 @@ spring:
         poolPreparedStatements: true
         maxPoolPreparedStatementPerConnectionSize: 20
         filters: stat,wall
+#      ds1: #配置每个数据库的数据源信息
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+#        url: jdbc:mysql://localhost:3306/sharding_test_db1?autoReconnect=true&failOverReadOnly=false&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#        username: root
+#        password: SWXA1234@DAR_Mysql
+#        #        connectionProperties: connectTimeout=60000;socketTimeout=60000  #1.2.12版本配置失效
+#        connectTimeout: 60000  #1.2.12版本需要单独配置才生效
+#        socketTimeout: 60000   #1.2.12版本需要单独配置才生效
+#        initialSize: 5
+#        minIdle: 5
+#        maxActive: 20
+#        maxWait: 60000
+#        timeBetweenEvictionRunsMillis: 60000
+#        min-evictableIdleTimeMillis: 300000
+#        validationQuery: SELECT 1 FROM DUAL
+#        testWhileIdle: true
+#        testOnBorrow: false
+#        testOnReturn: false
+#        poolPreparedStatements: true
+#        maxPoolPreparedStatementPerConnectionSize: 20
+#        filters: stat,wall
     sharding:
       tables:
         user:   #分表策略配置
@@ -31,14 +53,15 @@ spring:
           database-strategy:
             inline:
               sharding-column: id
-              algorithm-expression: ds$->{0/id}
+              algorithm-expression: ds$->{id>"0"?0:1}
           table-strategy:
             inline:
               sharding-column: id   #使用哪一列用作计算分表策略，我们就使用id
-              algorithm-expression: user_$->{id % 3}    #具体的分表路由策略，我们有3个user表，使用主键id取余3，余数0/1/2分表对应表user_0,user_2,user_2
-          key-generator:
-            column: id    #配置主键生成策略，因为多张表了，id不能在配置数据库自增，需要配置主键生成策略，user表主键名称是id
-            type: SNOWFLAKE   #id使用雪花算法，因为雪花算法生成的id具有全球唯一性，并且又有自增特性，适合mysql的innodb引擎
+#              algorithm-expression: user_$->{('${id}'.hashCode()) % 3}    #具体的分表路由策略，我们有3个user表，使用主键id取余3，余数0/1/2分表对应表user_0,user_2,user_2
+              algorithm-expression: user_$->{Math.abs('${id}'.hashCode()) % 3}
+#          key-generator:
+#            column: id    #配置主键生成策略，因为多张表了，id不能在配置数据库自增，需要配置主键生成策略，user表主键名称是id
+#            type: SNOWFLAKE   #id使用雪花算法，因为雪花算法生成的id具有全球唯一性，并且又有自增特性，适合mysql的innodb引擎
     props:
       sql:
         show: true    # 打开sql输出日志

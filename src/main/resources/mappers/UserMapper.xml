@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fkp.mapper.UserMapper">
   <resultMap id="BaseResultMap" type="com.fkp.domain.User">
-    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="city" jdbcType="VARCHAR" property="city" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="car_id" jdbcType="BIGINT" property="carId" />
@@ -86,11 +86,11 @@
     select 
     <include refid="Base_Column_List" />
     from user
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="com.fkp.domain.UserExample">
     delete from user
@@ -101,7 +101,7 @@
   <insert id="insert" parameterType="com.fkp.domain.User">
     insert into user (id, city, name,
       car_id)
-    values (#{id,jdbcType=BIGINT}, #{city,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{carId,jdbcType=BIGINT})
   </insert>
   <insert id="insertNoId" parameterType="com.fkp.domain.User">
@@ -134,7 +134,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=BIGINT},
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="city != null">
         #{city,jdbcType=VARCHAR},
@@ -157,7 +157,7 @@
     update user
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        id = #{row.id,jdbcType=VARCHAR},
       </if>
       <if test="row.city != null">
         city = #{row.city,jdbcType=VARCHAR},
@@ -175,7 +175,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update user
-    set id = #{row.id,jdbcType=BIGINT},
+    set id = #{row.id,jdbcType=VARCHAR},
       city = #{row.city,jdbcType=VARCHAR},
       name = #{row.name,jdbcType=VARCHAR},
       car_id = #{row.carId,jdbcType=BIGINT}
@@ -196,14 +196,14 @@
         car_id = #{carId,jdbcType=BIGINT},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.fkp.domain.User">
     update user
     set city = #{city,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       car_id = #{carId,jdbcType=BIGINT}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <select id="findPage" resultMap="BaseResultMap">
     select
