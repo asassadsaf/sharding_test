@@ -3,6 +3,7 @@ package com.fkp.util;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -19,8 +20,8 @@ public class StrIdGenerator {
 
 
     // 每一部分占用的位数
-    private static final int SEQUENCE_BIT = 9; //序列号占用的位数
-    private static final int MACHINE_BIT = 32;   //机器标识占用的位数
+    private static final int SEQUENCE_BIT = 12; //序列号占用的位数
+    private static final int MACHINE_BIT = 10;   //机器标识占用的位数
 
     // 每一部分的最大值
     private static final long MAX_SEQUENCE = -1L ^ (-1L << SEQUENCE_BIT);
@@ -73,10 +74,10 @@ public class StrIdGenerator {
         lastTimestamp = getCurrTimestamp();
 
         long idLow = machineId << MACHINE_LEFT | sequence;
-        BigInteger idHign = BigInteger.valueOf(currStmp - START_TIMESTAMP).shiftLeft(TIMESTAMP_LEFT);
-        BigInteger id = idHign.add(BigInteger.valueOf(idLow));
-
-        return id.toString(10);
+//        BigInteger idHign = BigInteger.valueOf(currStmp - START_TIMESTAMP).shiftLeft(TIMESTAMP_LEFT);
+//        BigInteger id = idHign.add(BigInteger.valueOf(idLow));
+        return String.valueOf((currStmp - START_TIMESTAMP) << TIMESTAMP_LEFT | machineId << MACHINE_LEFT | sequence);
+//        return id.toString(10);
     }
 
     /**
@@ -120,9 +121,8 @@ public class StrIdGenerator {
     }
 
     private static int getMachineId() {
-        Integer uuid = UUID.randomUUID().hashCode();
-        uuid = uuid < 0 ? -uuid : uuid;
-        return uuid;
+        Random random = new Random();
+        return random.nextInt(1024);
     }
 
     public static synchronized StrIdGenerator getInstance() {
@@ -143,4 +143,10 @@ public class StrIdGenerator {
         return START_TIMESTAMP + bigInteger.shiftRight(SEQUENCE_BIT + MACHINE_BIT).longValue();
     }
 
+    public static void main(String[] args) {
+        System.out.println(StrIdGenerator.getInstance().nextId());
+//        Random random = new Random();
+//        System.out.println(random.nextInt(1024));
+
+    }
 }
